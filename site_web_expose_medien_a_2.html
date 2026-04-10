@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medien - Expose</title>
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --bg-soft: #eceef2;
+      --surface: #ffffff;
+      --text: #171717;
+      --muted: #5c6370;
+      --black: #0f1012;
+      --green: #1f9d55;
+      --green-soft: #e7f7ee;
+      --red: #d83b3b;
+      --red-soft: #fdecec;
+      --violet: #6a54ff;
+      --violet-soft: #eeebff;
+      --line: #d9dde5;
+      --shadow: 0 18px 40px rgba(18, 25, 38, 0.08);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(106, 84, 255, 0.08), transparent 25%),
+        radial-gradient(circle at bottom right, rgba(31, 157, 85, 0.08), transparent 24%),
+        linear-gradient(180deg, #fafafb 0%, #f2f4f7 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 16, 18, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 16, 18, 0.03) 1px, transparent 1px);
+      background-size: 34px 34px;
+      pointer-events: none;
+      opacity: 0.45;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(15, 16, 18, 0.94);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .topbar .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 16px 0;
+    }
+
+    .brand {
+      color: #ffffff;
+      font-family: "Arial Black", "Trebuchet MS", sans-serif;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 1rem;
+    }
+
+    .brand span {
+      color: #7bffb6;
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.94rem;
+      transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+    }
+
+    nav a:hover,
+    nav a.active {
+      background: #ffffff;
+      color: var(--black);
+      border-color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    main {
+      padding: 26px 0 70px;
+    }
+
+    .page {
+      min-height: calc(100vh - 110px);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius-xl);
+      padding: 34px;
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      scroll-margin-top: 110px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .page::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      right: -60px;
+      top: -60px;
+      background: rgba(106, 84, 255, 0.08);
+      pointer-events: none;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .page-tag {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .page-number {
+      color: #a4aab4;
+      font-family: "Arial Black", "Trebuchet MS", sans-serif;
+      font-size: clamp(2rem, 6vw, 5rem);
+      line-height: 1;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: "Arial Black", "Trebuchet MS", sans-serif;
+      line-height: 1.05;
+    }
+
+    h1 {
+      font-size: clamp(3.2rem, 8vw, 5.8rem);
+      text-align: center;
+      margin-bottom: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .hero-subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: 1.15rem;
+      max-width: 620px;
+      margin: 0 auto 34px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(15, 16, 18, 0.05);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 18px 32px rgba(15, 16, 18, 0.1);
+    }
+
+    .group-card {
+      text-align: center;
+      background: linear-gradient(180deg, #ffffff 0%, #f8f9fb 100%);
+    }
+
+    .group-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--black);
+      color: #ffffff;
+      font-size: 1.35rem;
+      margin-bottom: 14px;
+    }
+
+    .group-card strong {
+      display: block;
+      font-size: 1.08rem;
+      margin-bottom: 6px;
+    }
+
+    .group-card p,
+    .text-card p,
+    .icon-card p,
+    .summary-card p,
+    .final-card p {
+      color: var(--muted);
+    }
+
+    .text-card h3,
+    .icon-card h3,
+    .summary-card h3,
+    .final-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .bullet-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .bullet-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      background: #f8f9fb;
+      border: 1px solid #e3e7ee;
+    }
+
+    .bullet-icon {
+      flex: 0 0 40px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .positive .bullet-icon,
+    .positive-badge {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .negative .bullet-icon,
+    .negative-badge {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .advice .bullet-icon,
+    .advice-badge {
+      background: #eef6ff;
+      color: #1565c0;
+    }
+
+    .violet .bullet-icon,
+    .violet-badge {
+      background: var(--violet-soft);
+      color: var(--violet);
+    }
+
+    .bullet-item strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 1rem;
+    }
+
+    .split-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .mini-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .hero-panel {
+      padding: 28px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(145deg, #0f1012, #2a2d34);
+      color: #ffffff;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .hero-panel p {
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      font-size: 1.02rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .final-card {
+      text-align: center;
+      padding: 32px;
+      background: linear-gradient(160deg, #ffffff 0%, #f7f6ff 100%);
+    }
+
+    .final-message {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      line-height: 1.15;
+      margin-bottom: 14px;
+      color: var(--black);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .summary-card {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      background: #ffffff;
+      border: 1px solid var(--line);
+    }
+
+    .summary-card .mini-badge {
+      margin-bottom: 14px;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      text-align: center;
+      color: #7b808b;
+      font-size: 0.95rem;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 920px) {
+      .grid-2,
+      .grid-3,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        flex-direction: column;
+      }
+
+      .topbar .container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 22px;
+        border-radius: 24px;
+      }
+
+      nav a {
+        width: 100%;
+        text-align: center;
+      }
+
+      .hero-panel,
+      .card,
+      .final-card,
+      .summary-card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container">
+      <div class="brand">Medien<span>Projekt</span></div>
+      <nav>
+        <a href="#page1">Accueil</a>
+        <a href="#page2">Vorteile</a>
+        <a href="#page3">Nachteile</a>
+        <a href="#page4">Fazit</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page reveal" id="page1">
+      <div class="page-header">
+        <div class="page-tag">Page 1 - Introduction</div>
+        <div class="page-number">01</div>
+      </div>
+
+      <div class="hero-panel">
+        <h1>MEDIEN</h1>
+        <p class="hero-subtitle">Medien sind ein wichtiger Teil unseres Lebens.</p>
+      </div>
+
+      <div class="grid grid-3">
+        <article class="card group-card">
+          <div class="group-icon">&#128100;</div>
+          <strong>Name 1</strong>
+          <p>Mitglied der Gruppe</p>
+        </article>
+        <article class="card group-card">
+          <div class="group-icon">&#128100;</div>
+          <strong>Name 2</strong>
+          <p>Mitglied der Gruppe</p>
+        </article>
+        <article class="card group-card">
+          <div class="group-icon">&#128100;</div>
+          <strong>Name 3</strong>
+          <p>Mitglied der Gruppe</p>
+        </article>
+      </div>
+
+      <div class="grid grid-2" style="margin-top: 20px;">
+        <article class="card text-card">
+          <div class="split-title">
+            <span class="mini-badge violet-badge">&#128214;</span>
+            <h3>Kurze Einf&uuml;hrung</h3>
+          </div>
+          <p>Heute pr&auml;sentieren wir das Thema Medien.</p>
+          <p>Medien sind sehr wichtig in unserem Leben.</p>
+          <p>Wir benutzen Medien jeden Tag.</p>
+        </article>
+
+        <article class="card text-card">
+          <div class="split-title">
+            <span class="mini-badge violet-badge">&#128250;</span>
+            <h3>Beispiele</h3>
+          </div>
+          <p>Zum Beispiel: das Internet, das Fernsehen und das Radio.</p>
+          <p>Auch soziale Medien sind heute sehr wichtig.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="page reveal" id="page2">
+      <div class="page-header">
+        <div class="page-tag">Page 2 - Vorteile und Material</div>
+        <div class="page-number">02</div>
+      </div>
+
+      <div class="grid grid-2">
+        <article class="card icon-card">
+          <div class="split-title">
+            <span class="mini-badge positive-badge">&#128077;</span>
+            <h2>Vorteile</h2>
+          </div>
+
+          <div class="bullet-list">
+            <div class="bullet-item positive">
+              <span class="bullet-icon">&#9889;</span>
+              <div>
+                <strong>Schnell</strong>
+                <p>Medien sind schnell.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item positive">
+              <span class="bullet-icon">&#127757;</span>
+              <div>
+                <strong>Viele Informationen</strong>
+                <p>Wir bekommen viele Informationen.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item positive">
+              <span class="bullet-icon">&#128172;</span>
+              <div>
+                <strong>Kommunikation</strong>
+                <p>Man kann mit anderen Menschen kommunizieren.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item positive">
+              <span class="bullet-icon">&#10024;</span>
+              <div>
+                <strong>Praktisch</strong>
+                <p>Medien sind praktisch im Alltag.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card icon-card">
+          <div class="split-title">
+            <span class="mini-badge advice-badge">&#128187;</span>
+            <h2>Material</h2>
+          </div>
+
+          <div class="bullet-list">
+            <div class="bullet-item advice">
+              <span class="bullet-icon">&#128241;</span>
+              <div>
+                <strong>Handy</strong>
+                <p>Wir benutzen ein Handy.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item advice">
+              <span class="bullet-icon">&#128187;</span>
+              <div>
+                <strong>Computer</strong>
+                <p>Wir benutzen einen Computer.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item advice">
+              <span class="bullet-icon">&#127760;</span>
+              <div>
+                <strong>Internet</strong>
+                <p>Wir benutzen das Internet.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item advice">
+              <span class="bullet-icon">&#128242;</span>
+              <div>
+                <strong>Soziale Medien</strong>
+                <p>Wir benutzen soziale Medien.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="page reveal" id="page3">
+      <div class="page-header">
+        <div class="page-tag">Page 3 - Nachteile und Tipps</div>
+        <div class="page-number">03</div>
+      </div>
+
+      <div class="grid grid-2">
+        <article class="card icon-card">
+          <div class="split-title">
+            <span class="mini-badge negative-badge">&#10060;</span>
+            <h2>Nachteile</h2>
+          </div>
+
+          <div class="bullet-list">
+            <div class="bullet-item negative">
+              <span class="bullet-icon">&#9888;</span>
+              <div>
+                <strong>Gef&auml;hrlich</strong>
+                <p>Medien k&ouml;nnen gef&auml;hrlich sein.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item negative">
+              <span class="bullet-icon">&#10071;</span>
+              <div>
+                <strong>Falsche Informationen</strong>
+                <p>Es gibt viele falsche Informationen.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item negative">
+              <span class="bullet-icon">&#9200;</span>
+              <div>
+                <strong>Zu viel Zeit</strong>
+                <p>Man verbringt zu viel Zeit am Handy.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item negative">
+              <span class="bullet-icon">&#128273;</span>
+              <div>
+                <strong>S&uuml;chtig</strong>
+                <p>Man kann s&uuml;chtig werden.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card icon-card">
+          <div class="split-title">
+            <span class="mini-badge positive-badge">&#9989;</span>
+            <h2>Tipps</h2>
+          </div>
+
+          <div class="bullet-list">
+            <div class="bullet-item positive">
+              <span class="bullet-icon">&#10004;</span>
+              <div>
+                <strong>Pr&uuml;fen</strong>
+                <p>Man muss Informationen pr&uuml;fen.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item positive">
+              <span class="bullet-icon">&#10004;</span>
+              <div>
+                <strong>Vergleichen</strong>
+                <p>Man soll verschiedene Quellen vergleichen.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item positive">
+              <span class="bullet-icon">&#10004;</span>
+              <div>
+                <strong>Nicht alles glauben</strong>
+                <p>Man soll nicht alles glauben.</p>
+              </div>
+            </div>
+
+            <div class="bullet-item positive">
+              <span class="bullet-icon">&#10004;</span>
+              <div>
+                <strong>Weniger Zeit</strong>
+                <p>Man soll weniger Zeit am Handy verbringen.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="page reveal" id="page4">
+      <div class="page-header">
+        <div class="page-tag">Page 4 - Fazit</div>
+        <div class="page-number">04</div>
+      </div>
+
+      <article class="card final-card">
+        <div class="split-title" style="justify-content: center;">
+          <span class="mini-badge violet-badge">&#127919;</span>
+          <h2>Fazit</h2>
+        </div>
+        <p class="final-message">Medien sind gut, aber wir m&uuml;ssen vorsichtig sein.</p>
+        <p>Medien sind wichtig, aber man muss sie richtig benutzen.</p>
+      </article>
+
+      <div class="summary-grid">
+        <article class="summary-card">
+          <span class="mini-badge positive-badge">&#128077;</span>
+          <h3>Vorteile</h3>
+          <p>Medien sind schnell, praktisch und informativ.</p>
+        </article>
+
+        <article class="summary-card">
+          <span class="mini-badge negative-badge">&#128078;</span>
+          <h3>Nachteile</h3>
+          <p>Es gibt falsche Informationen und zu viel Bildschirmzeit.</p>
+        </article>
+
+        <article class="summary-card">
+          <span class="mini-badge advice-badge">&#10004;</span>
+          <h3>Richtige Nutzung</h3>
+          <p>Wir m&uuml;ssen Informationen pr&uuml;fen und Medien bewusst nutzen.</p>
+        </article>
+      </div>
+
+      <p class="footer-note">
+        Tipp f&uuml;r den Vortrag: Nicht alles lesen. Einfach und ruhig erkl&auml;ren:
+        "Hier sehen wir die Vorteile..." und "Jetzt kommen die Nachteile..."
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const reveals = document.querySelectorAll(".reveal");
+    const navLinks = document.querySelectorAll("nav a");
+    const sections = document.querySelectorAll(".page");
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+        }
+      });
+    }, { threshold: 0.15 });
+
+    reveals.forEach((item) => revealObserver.observe(item));
+
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        navLinks.forEach((link) => {
+          link.classList.toggle("active", link.getAttribute("href") === "#" + entry.target.id);
+        });
+      });
+    }, { threshold: 0.45 });
+
+    sections.forEach((section) => navObserver.observe(section));
+  </script>
+</body>
+</html>
